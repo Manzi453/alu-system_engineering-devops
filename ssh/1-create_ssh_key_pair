@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 # Define the key name, bit size, and passphrase
 KEY_NAME="school"
 KEY_BITS=4096
