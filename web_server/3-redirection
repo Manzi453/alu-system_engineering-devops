@@ -1,46 +1,29 @@
 #!/usr/bin/env bash
-# This script configures Nginx to redirect /redirect_me to another page.
+#Configure your Nginx server so that /redirect_me is redirecting to another page
+sudo apt-get update -y
+sudo apt-get install -y nginx
 
-# Ensure the script is run as root
-if [ "$EUID" -ne 0 ]; then
-  echo "Please run this script as root or using sudo."
-  exit 1
-fi
+sudo mkdir /etc/nginx/html
+sudo touch /etc/nginx/html/index.html
 
-# Install Nginx if not already installed
-if ! command -v nginx &> /dev/null; then
-  apt-get update -y
-  apt-get install -y nginx
-fi
-
-# Remove default Nginx config to avoid conflicts
-rm -f /etc/nginx/sites-enabled/default
-
-# Create a custom Nginx configuration for the redirection
-cat > /etc/nginx/sites-available/redirect_me <<EOF
-server {
-    listen 80;
-    server_name manzi453.tech;
-
-    location /redirect_me {
-        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
-    }
-
-    location / {
-        root /var/www/html;
-        index index.html index.htm;
-    }
+#sudo ufw allow 'Nginx HTTP'
+config=\
+"server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+	root /var/www/html;
+	index index.html index.htm index.nginx-debian.html;
+	server_name _;
+	location / {
+		try_files \$uri \$uri/ =404;
+        }
+	location /redirect_me {
+		return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+	}
 }
-EOF
-
-# Enable the new configuration
-ln -sf /etc/nginx/sites-available/redirect_me /etc/nginx/sites-enabled/
-
-# Test the Nginx configuration
-nginx -t
-
-# Restart Nginx to apply the changes
-systemctl restart nginx
-
-echo "Nginx configuration updated successfully."
-
+"
+sudo chown -R "$USER":"$USER" /var/www/html/index.html
+sudo chown -R "$USER":"$USER" /etc/nginx/sites-available/default
+echo "Holberton School" > /var/www/html/index.html
+echo "$config" > /etc/nginx/sites-available/default
+sudo service nginx restart
