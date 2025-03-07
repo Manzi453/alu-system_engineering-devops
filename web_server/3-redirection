@@ -13,6 +13,9 @@ if ! command -v nginx &> /dev/null; then
   apt-get install -y nginx
 fi
 
+# Remove default Nginx config to avoid conflicts
+rm -f /etc/nginx/sites-enabled/default
+
 # Create a custom Nginx configuration for the redirection
 cat > /etc/nginx/sites-available/redirect_me <<EOF
 server {
@@ -37,4 +40,7 @@ ln -sf /etc/nginx/sites-available/redirect_me /etc/nginx/sites-enabled/
 nginx -t
 
 # Restart Nginx to apply the changes
-service nginx restart
+systemctl restart nginx
+
+echo "Nginx configuration updated successfully."
+
