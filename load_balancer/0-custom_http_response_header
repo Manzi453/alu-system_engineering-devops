@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Update package lists and install Nginx
+sudo apt update -y
+sudo apt install -y nginx
+
+# Ensure Nginx service is running and enabled
+sudo systemctl start nginx
+sudo systemctl enable nginx
+
+# Get the hostname of the server
+SERVER_NAME=$(hostname)
+
+# Modify default Nginx config to include X-Served-By header
+sudo tee /etc/nginx/sites-available/default > /dev/null <<EOF
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name _;
+
+    location / {
+        add_header X-Served-By "$SERVER_NAME";
+    }
+}
+EOF
+
+# Restart Nginx to apply changes
+sudo systemctl restart nginx
