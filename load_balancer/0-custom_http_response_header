@@ -1,29 +1,31 @@
 #!/usr/bin/env bash
-# This script configures Nginx to add a custom HTTP header with the server's hostname
-
-# Update package list and install Nginx
-echo "Updating package list and installing Nginx..."
+# Update package lists and install Nginx
 sudo apt update -y
-sudo apt install nginx -y
+sudo apt install -y nginx
+
+# Ensure Nginx service is running and enabled
+sudo systemctl start nginx
+sudo systemctl enable nginx
 
 # Get the hostname of the server
-HOSTNAME=$(hostname)
-echo "Host name is: $HOSTNAME"
+SERVER_NAME=$(hostname)
 
-# Modify Nginx configuration to add the custom header
-echo "Modifying Nginx configuration..."
-sudo sed -i "/server_name _;/a \    add_header X-Served-By $HOSTNAME;" /etc/nginx/sites-available/default
+# Modify default Nginx config to include X-Served-By header
+sudo tee /etc/nginx/sites-available/default > /dev/null <<EOF
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
 
-# Test the Nginx configuration to ensure it's valid
-echo "Testing Nginx configuration..."
-sudo nginx -t
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
 
-# If the configuration test is successful, restart Nginx to apply changes
-if [ $? -eq 0 ]; then
-    echo "Nginx configuration is valid. Restarting Nginx..."
-    sudo systemctl restart nginx
-    echo "Nginx restarted successfully."
-else
-    echo "Nginx configuration test failed. Please check the configuration."
-    exit 1
-fi
+    server_name _;
+
+    location / {
+        add_header X-Served-By "$SERVER_NAME";
+    }
+}
+EOF
+
+# Restart Nginx to apply changes
+sudo systemctl restart nginx
