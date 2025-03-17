@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 # This script installs and configures Nginx to listen on port 80 and serve a web page.
 
-# Update package list and install Nginx
+# Update package list and install Nginx and net-tools
 apt-get update
-apt-get install -y nginx
+apt-get install -y nginx net-tools
 
 # Ensure Nginx is configured to listen on port 80
 sed -i 's/listen .*/listen 80;/g' /etc/nginx/sites-available/default
+
+# Stop Apache if it is running
+service apache2 stop
 
 # Start Nginx service
 service nginx start
 
 # Verify Nginx is running and listening on port 80
-if netstat -tuln | grep -q ':80 '; then
+if ss -tuln | grep -q ':80 '; then
     echo "Nginx is running and listening on port 80."
 else
     echo "Nginx failed to start or is not listening on port 80."
