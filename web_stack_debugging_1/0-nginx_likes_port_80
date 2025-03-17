@@ -5,11 +5,15 @@
 apt-get update
 apt-get install -y nginx net-tools
 
-# Ensure Nginx is configured to listen on port 80
-sed -i 's/listen .*/listen 80;/g' /etc/nginx/sites-available/default
+# Ensure Nginx is configured to listen on port 80 (remove duplicate listen directives)
+sed -i '/listen 80;/d' /etc/nginx/sites-available/default
+echo "listen 80;" >> /etc/nginx/sites-available/default
 
 # Stop Apache if it is running
 service apache2 stop
+
+# Test Nginx configuration
+nginx -t
 
 # Start Nginx service
 service nginx start
@@ -19,5 +23,7 @@ if ss -tuln | grep -q ':80 '; then
     echo "Nginx is running and listening on port 80."
 else
     echo "Nginx failed to start or is not listening on port 80."
+    echo "Checking Nginx error logs..."
+    tail -n 10 /var/log/nginx/error.log
     exit 1
 fi
