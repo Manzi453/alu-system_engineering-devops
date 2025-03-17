@@ -1,0 +1,15 @@
+# Connect to the container
+docker exec -it <container_id> /bin/bash
+
+# Install Apache
+apt-get update
+apt-get install -y apache2
+
+# Create the HTML file
+echo "Hello Holberton" > /var/www/html/index.html
+
+# Start Apache
+service apache2 start
+
+# Exit the container
+exit
