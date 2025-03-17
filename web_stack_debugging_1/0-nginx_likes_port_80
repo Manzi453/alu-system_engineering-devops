@@ -8,16 +8,15 @@ if ! command -v nginx &> /dev/null; then
 fi
 
 # Stop Apache if running (to free port 80)
-systemctl stop apache2 2>/dev/null
-systemctl disable apache2 2>/dev/null
+service apache2 stop 2>/dev/null
+update-rc.d -f apache2 remove 2>/dev/null
 
-# Ensure Nginx is enabled and started
-systemctl enable nginx
-systemctl start nginx
+# Ensure Nginx is started
+service nginx start
 
 # Ensure Nginx listens on port 80 for all IPv4 IPs
 sed -i 's/listen 80 default_server;/listen 0.0.0.0:80 default_server;/g' /etc/nginx/sites-available/default
 sed -i 's/listen \[::\]:80 default_server;/# listen [::]:80 default_server;/g' /etc/nginx/sites-available/default
 
 # Restart Nginx to apply changes
-systemctl restart nginx
+service nginx restart
