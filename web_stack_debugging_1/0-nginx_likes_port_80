@@ -27,3 +27,12 @@ else
     tail -n 10 /var/log/nginx/error.log
     exit 1
 fi
+
+# Verify Nginx returns HTTP 200
+response=$(curl -s -o /dev/null -w "%{http_code}" 0:80)
+if [[ "$response" == "200" ]]; then
+    echo "Nginx is serving a web page with HTTP 200."
+else
+    echo "Nginx is not serving a web page with HTTP 200. Response code: $response"
+    exit 1
+fi
