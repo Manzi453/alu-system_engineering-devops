@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# Update package list and install Nginx
+apt-get update
+apt-get install -y nginx
+
+# Ensure Nginx is configured to listen on port 80
+sed -i 's/listen .*/listen 80;/g' /etc/nginx/sites-available/default
+
+# Start Nginx service
+service nginx start
+
+# Verify Nginx is running and listening on port 80
+if netstat -tuln | grep -q ':80 '; then
+    echo "Nginx is running and listening on port 80."
+else
+    echo "Nginx failed to start or is not listening on port 80."
+    exit 1
+fi
