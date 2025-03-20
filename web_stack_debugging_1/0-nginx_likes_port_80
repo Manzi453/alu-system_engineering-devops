@@ -1,46 +1,5 @@
 #!/usr/bin/env bash
-# Install Nginx if not already installed
-# Check if the script is run as root
-if [ "$EUID" -ne 0 ]; then
-  echo "Please run this script as root or with sudo."
-  exit 1
-fi
-
-# Install Nginx if not already installed
-apt-get update
-apt-get install -y nginx
-
-# Ensure Nginx is configured to listen on port 80
-if ! grep -q "listen 80;" /etc/nginx/sites-available/default; then
-  sed -i '/listen \[::\]:80 default_server;/a listen 80;' /etc/nginx/sites-available/default
-fi
-
-# Restart Nginx to apply changes
-systemctl restart nginx
-
-# Verify Nginx is running
-if systemctl is-active --quiet nginx; then
-  echo "Nginx is running."
-else
-  echo "Nginx failed to start."
-  exit 1
-fi
-
-# Verify Nginx is listening on port 80
-if netstat -tuln | grep -q ":80 "; then
-  echo "Nginx is listening on port 80."
-else
-  echo "Nginx is not listening on port 80."
-  exit 1
-fi
-
-# Verify Nginx returns HTTP 200
-response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80)
-if [ "$response" -eq 200 ]; then
-  echo "Nginx returned HTTP 200."
-  echo "2"  # Expected output
-else
-  echo "Nginx did not return HTTP 200."
-  echo "0"  # Failure output
-  exit 1
-fi
+# make Me Lough bingo
+sudo rm /etc/nginx/sites-enabled/default
+sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+sudo service nginx stop
