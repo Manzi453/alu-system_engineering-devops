@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
-# Fix Nginx configuration to listen on port 80
+# This script fixes Nginx configuration to ensure it listens on port 80.
 
-# Backup the original configuration file
-sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
+# Ensure the listen directive is at the top of the server block
+if ! grep -q "listen 80;" /etc/nginx/sites-available/default; then
+    sed -i '/server {/a \    listen 80;' /etc/nginx/sites-available/default
+fi
 
-# Modify the configuration to listen on port 80
-sudo sed -i 's/listen [::]:80 default_server;/listen 80 default_server;/' /etc/nginx/sites-available/default
+# Test the Nginx configuration
+if sudo nginx -t; then
+    # Restart Nginx if the configuration is valid
+    sudo systemctl restart nginx
+else
+    echo "Nginx configuration test failed. Please check the configuration files."
+    exit 1
+fi
 
-# Restart Nginx to apply the changes
-sudo service nginx restart
+# Ensure Nginx is running
+if ! systemctl is-active --quiet nginx; then
+    sudo systemctl start nginx
+fi
 
-# Check if Nginx is listening on port 80
-curl http://localhost:80
+echo "Nginx is now running and listening on port 80."
