@@ -9,11 +9,7 @@ fi
 
 # Ensure Nginx is configured to listen on port 80
 if ! grep -q "listen 80;" /etc/nginx/sites-available/default; then
-<<<<<<< HEAD
     sed -i '/server {/a \    listen 80;\n    server_name _;' /etc/nginx/sites-available/default
-=======
-    sed -i '/server {/a \    listen 80;' /etc/nginx/sites-available/default
->>>>>>> ee6b9270fcfec67d6193ec3f7dcadebf91c1b57d
 fi
 
 # Test the Nginx configuration
